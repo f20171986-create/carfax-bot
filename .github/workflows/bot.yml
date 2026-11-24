@@ -1,0 +1,30 @@
+name: Fetch Carfax Report
+
+on:
+  workflow_dispatch:
+    inputs:
+      vin:
+        description: 'Vehicle VIN'
+        required: true
+      report_id:
+        description: 'Supabase Report ID'
+        required: true
+
+jobs:
+  fetch-pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install @supabase/supabase-js playwright && npx playwright install chromium
+      - name: Run Carfax Robot
+        env:
+          SHAFAQ_EMAIL: ${{ secrets.SHAFAQ_EMAIL }}
+          SHAFAQ_PASSWORD: ${{ secrets.SHAFAQ_PASSWORD }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          VIN: ${{ github.event.inputs.vin }}
+          REPORT_ID: ${{ github.event.inputs.report_id }}
+        run: node bot.js
